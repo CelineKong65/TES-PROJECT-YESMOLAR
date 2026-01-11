@@ -6,7 +6,7 @@ Most important thing:
    pip install clipspy
 4) After run, you can run the example.py to test your clipspy is download successful or not. If yes, print("You're Smart!!!). If no, try to solve it hahahaahahaah.
 
-First Version 
+System
 1) Page 1
 - Main page for the user interface:
 - Display "WELCOME!" and then below have button with word "Start Testing".
@@ -21,11 +21,11 @@ First Version
 4) Page 4
 - After done this two test, it will have a overall result (TEST 1 and  TEST 2) and display the result and recommendations to the user.
 
-**TEST 1 & TEST 2 （还要改的）**
+**TEST 1 & TEST 2**
 MCQ - 对完3题是good, 对2题是moderate, else是poor
-Card Matching - 总共6个水果，少过等于6次是good, 少过等于9次是good, else是poor
+Card Matching - 总共8个水果，少过等于12次是good, 少过等于18次是good, else是poor
 Final result
 - poor + poor = high risk
 - good + good = low risk
 - any moderate = moderate
-- 假如有poor + good = inconclusive result
+- poor + good = moderate
