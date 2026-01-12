@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 from clips import Environment
+from tkinter import messagebox
 
 # CLIPS EXPERT SYSTEM
 env = Environment()
@@ -98,7 +99,7 @@ article = (
     "She lost her red scarf but found it under a bench before going home."
 )
 
-article_label = tk.Label(test1, text=article, wraplength=700)
+article_label = tk.Label(test1, text=article, wraplength=700, font=("Arial", 15))
 article_label.pack(pady=10)
 
 root.after(10000, lambda: article_label.config(text="[Article hidden]"))
@@ -123,10 +124,21 @@ mcq("3. Where was the scarf found?",
 
 def finish_test1():
     global mcq_result
+
+    if not q1.get() or not q2.get() or not q3.get():
+        messagebox.showwarning(
+            "Incomplete Test",
+            "Please answer all 3 questions before proceeding."
+        )
+        return   
+
     correct = 0
-    if q1.get() == "B": correct += 1
-    if q2.get() == "C": correct += 1
-    if q3.get() == "D": correct += 1
+    if q1.get() == "B":
+        correct += 1
+    if q2.get() == "C":
+        correct += 1
+    if q3.get() == "D":
+        correct += 1
 
     if correct <= 1:
         mcq_result = "poor"
