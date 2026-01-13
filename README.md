@@ -6,7 +6,7 @@ Most important thing:
    pip install clipspy
 4) After run, you can run the example.py to test your clipspy is download successful or not. If yes, print("You're Smart!!!). If no, try to solve it hahahaahahaah.
 
-System
+First Version (Ignore)
 1) Page 1
 - Main page for the user interface:
 - Display "WELCOME!" and then below have button with word "Start Testing".
