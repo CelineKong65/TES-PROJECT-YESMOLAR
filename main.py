@@ -1,254 +1,217 @@
 import tkinter as tk
-import random
-from clips import Environment
 from tkinter import messagebox
+from clips import Environment
 
-# CLIPS EXPERT SYSTEM
+# CLIPS ENVIRONMENT
 env = Environment()
 
 env.build("""
-(deftemplate test1 (slot result))
+(deftemplate symptom (slot code))
 """)
 
 env.build("""
-(deftemplate test2 (slot result))
+(deftemplate diagnosis (slot result))
 """)
 
+# RULES (VALIDATED RULES)
+# ------------------------------Mild---------------------------------------------
+# Rule 1
+# IF G001: Memory decline 
+# AND G002: Looks confused in familiar places
+# THEN G003: Requires a long time to make decisions 
 env.build("""
-(deftemplate diagnosis
-   (slot level)
-   (slot recommendation))
-""")
-
-env.build("""
-(defrule high-risk
-   (test1 (result poor))
-   (test2 (result poor))
+(defrule rule1
+   (symptom (code G001))
+   (symptom (code G002))
    =>
-   (assert (diagnosis
-      (level "High Risk of Alzheimer’s Disease")
-      (recommendation "Strongly recommended to seek professional medical assessment."))))
+   (assert (symptom (code G003)))
+)
 """)
 
+# Rule 2
+# IF G003: Requires a long time to make decisions 
+# AND G004: Daily activities slower than usual 
+# AND G005: Loss of initiative
+# THEN G006: Personality changes begin to appear 
 env.build("""
-(defrule moderate-risk
-   (or
-      (test1 (result moderate))
-      (test2 (result moderate)))
+(defrule rule2
+   (symptom (code G003))
+   (symptom (code G004))
+   (symptom (code G005))
    =>
-   (assert (diagnosis
-      (level "Moderate Risk of Alzheimer’s Disease")
-      (recommendation "Monitor memory health and consider professional screening."))))
+   (assert (symptom (code G006)))
+)
 """)
 
+# Rule 3
+# IF G006: Personality changes begin to appear
+# THEN P001: Alzheimer’s Dementia (Mild)
 env.build("""
-(defrule low-risk
-   (test1 (result good))
-   (test2 (result good))
+(defrule rule3
+   (symptom (code G006))
    =>
-   (assert (diagnosis
-      (level "Low Risk of Alzheimer’s Disease")
-      (recommendation "No significant cognitive impairment detected."))))
+   (assert (diagnosis (result P001)))
+)
 """)
 
+# ------------------------------Moderate---------------------------------------------
+# Rule 4
+# IF G007: Memory is getting worse
+# AND G008: Difficulty thinking logically
+# AND G009: Difficulty reading, writing, counting
+# THEN G010: Easily forgets family members
 env.build("""
-(defrule mixed-risk
-   (or
-      (and (test1 (result good)) (test2 (result poor)))
-      (and (test1 (result poor)) (test2 (result good))))
+(defrule rule4
+   (symptom (code G007))
+   (symptom (code G008))
+   (symptom (code G009))
    =>
-   (assert (diagnosis
-      (level "Moderate Risk of Alzheimer’s Disease")
-      (recommendation
-        "One cognitive test indicates impairment. Further monitoring is recommended."))))
+   (assert (symptom (code G010)))
+)
 """)
 
-# GLOBAL RESULTS
-mcq_result = None
-game_result = None
+# Rule 5
+# IF G011: Cannot learn new things 
+# AND G012: Restless, anxious, sad (especially at night)
+# THEN G013: Repeats the same conversation 
+env.build("""
+(defrule rule5
+   (symptom (code G011))
+   (symptom (code G012))
+   =>
+   (assert (symptom (code G013)))
+)
+""")
 
-# MAIN WINDOW 
+# Rule 6
+# IF G014: Repeats the same movements 
+# AND G015: Difficulty controlling emotions and behavior
+# THEN G016: Hallucinations (CF = 0.60)
+env.build("""
+(defrule rule6
+   (symptom (code G014))
+   (symptom (code G015))
+   =>
+   (assert (symptom (code G016)))
+)
+""")
+
+# Rule 7
+# IF G010: Forgets family members
+# AND G013: Repetitive speech
+# AND G016: Hallucinations
+# THEN P002: Alzheimer’s Ataxia (Moderate)
+env.build("""
+(defrule rule7
+   (symptom (code G010))
+   (symptom (code G013))
+   (symptom (code G016))
+   =>
+   (assert (diagnosis (result P002)))
+)
+""")
+
+# ------------------------------Acute---------------------------------------------
+# Rule 8
+# IF G017: Convulsions
+# AND G018: Difficulty swallowing food
+# THEN G019: Depression and weight loss
+env.build("""
+(defrule rule8
+   (symptom (code G017))
+   (symptom (code G018))
+   =>
+   (assert (symptom (code G019)))
+)
+""")
+
+# Rule 9
+# IF G019: Depression and weight loss
+# AND G020: Cannot communicate properly
+# AND G021: Cannot recognize close family members
+# THEN P003: Acute Alzheimer’s 
+env.build("""
+(defrule rule9
+   (symptom (code G019))
+   (symptom (code G020))
+   (symptom (code G021))
+   =>
+   (assert (diagnosis (result P003)))
+)
+""")
+
 root = tk.Tk()
 root.title("Rule-Based Alzheimer’s Expert System")
-root.geometry("760x720")
+root.geometry("850x650")
 
-frames = {}
+tk.Label(root, text="Alzheimer’s Disease Screening",
+         font=("Arial", 24, "bold")).pack(pady=10)
 
-def show_frame(name):
-    frames[name].tkraise()
+tk.Label(root, text="Please select all symptoms that apply:",
+         font=("Arial", 14)).pack(pady=5)
 
-# PAGE 1: WELCOME 
-welcome = tk.Frame(root)
-frames["welcome"] = welcome
-welcome.place(relwidth=1, relheight=1)
+# Symptom list
+symptoms = {
+    "G001": "Memory decline",
+    "G002": "Confused in familiar places",
+    "G004": "Daily activities slower than usual",
+    "G005": "Loss of initiative",
+    "G007": "Memory getting worse",
+    "G008": "Difficulty thinking logically",
+    "G009": "Difficulty reading / writing / counting",
+    "G011": "Cannot learn new things",
+    "G012": "Restless or anxious at night",
+    "G014": "Repeats same movements",
+    "G015": "Difficulty controlling emotions",
+    "G017": "Convulsions",
+    "G018": "Difficulty swallowing food",
+    "G020": "Cannot communicate properly",
+    "G021": "Cannot recognize close family members"
+}
 
-tk.Label(welcome, text="WELCOME!", font=("Arial", 30, "bold")).pack(pady=120)
-tk.Button(welcome, text="Start Testing", font=("Arial", 16),
-          width=20, command=lambda: show_frame("test1")).pack()
+vars = {}
 
-# PAGE 2: TEST 1 (MCQ) 
-test1 = tk.Frame(root)
-frames["test1"] = test1
-test1.place(relwidth=1, relheight=1)
+frame = tk.Frame(root)
+frame.pack(pady=10)
 
-tk.Label(test1, text="TEST 1: Memory Recall Test",
-         font=("Arial", 18, "bold")).pack(pady=10)
+for code, text in symptoms.items():
+    vars[code] = tk.BooleanVar()
+    tk.Checkbutton(frame, text=text, variable=vars[code],
+                   font=("Arial", 11)).pack(anchor="w")
 
-article = (
-    "Anna visited the park on Tuesday and fed the ducks near the fountain. "
-    "She lost her red scarf but found it under a bench before going home."
-)
-
-article_label = tk.Label(test1, text=article, wraplength=700, font=("Arial", 15))
-article_label.pack(pady=10)
-
-root.after(10000, lambda: article_label.config(text="[Article hidden]"))
-
-q1, q2, q3 = tk.StringVar(), tk.StringVar(), tk.StringVar()
-
-def mcq(question, options, var):
-    frame = tk.Frame(test1)
-    frame.pack(anchor="w", padx=60, pady=6)
-    tk.Label(frame, text=question, font=("Arial", 12, "bold")).pack(anchor="w")
-    for text, val in options:
-        tk.Radiobutton(frame, text=text, variable=var, value=val).pack(anchor="w")
-
-mcq("1. What day did Anna visit the park?",
-    [("Monday", "A"), ("Tuesday", "B"), ("Wednesday", "C"), ("Thursday", "D")], q1)
-
-mcq("2. What did Anna feed?",
-    [("Fish", "A"), ("Pigeons", "B"), ("Ducks", "C"), ("Squirrels", "D")], q2)
-
-mcq("3. Where was the scarf found?",
-    [("At home", "A"), ("In her bag", "B"), ("On a tree", "C"), ("Under a bench", "D")], q3)
-
-def finish_test1():
-    global mcq_result
-
-    if not q1.get() or not q2.get() or not q3.get():
-        messagebox.showwarning(
-            "Incomplete Test",
-            "Please answer all 3 questions before proceeding."
-        )
-        return   
-
-    correct = 0
-    if q1.get() == "B":
-        correct += 1
-    if q2.get() == "C":
-        correct += 1
-    if q3.get() == "D":
-        correct += 1
-
-    if correct <= 1:
-        mcq_result = "poor"
-    elif correct == 2:
-        mcq_result = "moderate"
-    else:
-        mcq_result = "good"
-
-    start_test2()
-
-tk.Button(test1, text="Done", font=("Arial", 14),
-          command=finish_test1).pack(pady=20)
-
-# PAGE 3: TEST 2 (CARD MATCHING)
-test2 = tk.Frame(root)
-frames["test2"] = test2
-test2.place(relwidth=1, relheight=1)
-
-tk.Label(test2, text="TEST 2: Card Matching Test",
-         font=("Arial", 18, "bold")).pack(pady=10)
-
-board = tk.Frame(test2)
-board.pack(pady=20)
-
-def start_test2():
-    show_frame("test2")
-    setup_game()
-
-def setup_game():
-    global cards, buttons, flipped, matched, attempts, game_result
-    attempts = 0
-    flipped = []
-    matched = []
-    game_result = None
-
-    for widget in board.winfo_children():
-        widget.destroy()
-
-    cards = ['🍎','🍌','🍇','🍓','🍊','🍒','🍉','🥝'] * 2
-    random.shuffle(cards)
-    buttons = []
-
-    for i in range(16):
-        btn = tk.Button(board, text="❓", width=6, height=3,
-                        font=("Arial", 18),
-                        command=lambda i=i: flip(i))
-        btn.grid(row=i//4, column=i%4, padx=5, pady=5)
-        buttons.append(btn)
-
-def flip(i):
-    if i in flipped or i in matched:
-        return
-    buttons[i].config(text=cards[i])
-    flipped.append(i)
-    if len(flipped) == 2:
-        root.after(800, check_match)
-
-def check_match():
-    global attempts, game_result
-    i, j = flipped
-    attempts += 1
-
-    if cards[i] == cards[j]:
-        matched.extend([i, j])
-        buttons[i].config(state="disabled", bg="lightgreen")
-        buttons[j].config(state="disabled", bg="lightgreen")
-    else:
-        buttons[i].config(text="❓")
-        buttons[j].config(text="❓")
-
-    flipped.clear()
-
-    if len(matched) == 16:
-        if attempts <= 12:
-            game_result = "good"
-        elif attempts <= 18:
-            game_result = "moderate"
-        else:
-            game_result = "poor"
-        show_frame("result")
-
-# PAGE 4: RESULT
-result = tk.Frame(root)
-frames["result"] = result
-result.place(relwidth=1, relheight=1)
-
-tk.Label(result, text="Overall Result",
-         font=("Arial", 20, "bold")).pack(pady=20)
-
-output = tk.Text(result, width=80, height=14)
-output.pack()
-
-def run_result():
-    output.delete("1.0", tk.END)
+def diagnose():
     env.reset()
-    env.assert_string(f"(test1 (result {mcq_result}))")
-    env.assert_string(f"(test2 (result {game_result}))")
+
+    for code, var in vars.items():
+        if var.get():
+            env.assert_string(f"(symptom (code {code}))")
+
     env.run()
 
+    result_text = ""
     for fact in env.facts():
         if fact.template.name == "diagnosis":
-            output.insert(tk.END,
-                f"TEST 1: {mcq_result.capitalize()}\n"
-                f"TEST 2: {game_result.capitalize()}\n\n"
-                f"Assessment:\n{fact['level']}\n\n"
-                f"Recommendation:\n{fact['recommendation']}")
+            if fact["result"] == "P001":
+                result_text = "Diagnosis: Mild Alzheimer’s (P001)"
+            elif fact["result"] == "P002":
+                result_text = "Diagnosis: Moderate Alzheimer’s (P002)"
+            elif fact["result"] == "P003":
+                result_text = "Diagnosis: Acute Alzheimer’s (P003)"
 
-tk.Button(result, text="Run Result", font=("Arial", 14),
-          command=run_result).pack(pady=10)
+    if result_text:
+        messagebox.showinfo(
+            "Diagnosis Result",
+            result_text + "\n\n⚠️ This is a preliminary screening.\nPlease consult medical professionals."
+        )
+    else:
+        messagebox.showinfo(
+            "Diagnosis Result",
+            "No Alzheimer’s stage detected based on selected symptoms."
+        )
 
-# START APPLICATION
-show_frame("welcome")
+tk.Button(root, text="Run Diagnosis",
+          font=("Arial", 14),
+          bg="#4CAF50", fg="white",
+          command=diagnose).pack(pady=20)
+
 root.mainloop()
