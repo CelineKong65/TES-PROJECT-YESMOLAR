@@ -150,7 +150,7 @@ root.title("Rule-Based Alzheimer’s Expert System")
 root.geometry("900x700")
 root.configure(bg="#F4F6F8")
 
-# ---------------- FUNCTIONS ----------------
+# functions
 def save_diagnosis_to_file(selected_symptoms, diagnosis_result):
     with open("diagnosis_records.txt", "a", encoding="utf-8") as file:
         file.write("----------------------------------------\n")
@@ -195,7 +195,6 @@ def show_pie_chart_page():
     admin_records_page.pack_forget()
     pie_chart_page.pack(fill="both", expand=True)
 
-    # Clear previous chart
     for widget in pie_chart_frame.winfo_children():
         widget.destroy()
 
@@ -235,7 +234,7 @@ def show_pie_chart_page():
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True)
 
-# ---------------- START PAGE ----------------
+# start page
 start_page = tk.Frame(root, bg="#F4F6F8")
 start_page.pack(fill="both", expand=True)
 
@@ -253,7 +252,7 @@ tk.Button(start_page, text="Admin Login", font=("Segoe UI", 10),
 tk.Label(start_page, text="Educational use only | Rule-Based Expert System | TES6313",
          font=("Segoe UI", 10), fg="gray", bg="#F4F6F8").pack(side="bottom", pady=15)
 
-# ---------------- DIAGNOSIS PAGE ----------------
+# diagnosis page
 diagnosis_page = tk.Frame(root, bg="#F4F6F8")
 header = tk.Frame(diagnosis_page, bg="#2E86C1", height=80)
 header.pack(fill="x")
@@ -308,7 +307,7 @@ tk.Button(button_frame, text="⬅ Back", font=("Segoe UI", 14, "bold"),
 tk.Button(button_frame, text="🔍 Run Diagnosis", font=("Segoe UI", 14, "bold"),
           bg="#28B463", fg="white", padx=20, pady=10, command=diagnose).pack(side="left", padx=10)
 
-# ---------------- ADMIN LOGIN PAGE ----------------
+# admin login page
 admin_login_page = tk.Frame(root, bg="#F4F6F8")
 
 tk.Label(admin_login_page, text="Admin Login", font=("Segoe UI", 18, "bold"), bg="#F4F6F8").pack(pady=40)
@@ -351,7 +350,7 @@ tk.Button(button_frame_admin, text="⬅ Back", font=("Segoe UI", 12, "bold"),
 tk.Button(button_frame_admin, text="Login", font=("Segoe UI", 12, "bold"),
           bg="#28B463", fg="white", padx=15, pady=5, command=admin_login_check).pack(side="left", padx=10)
 
-# ---------------- ADMIN RECORDS PAGE ----------------
+# admin view records page
 admin_records_page = tk.Frame(root, bg="#F4F6F8")
 tk.Label(admin_records_page, text="Admin Records", font=("Segoe UI", 18, "bold")).pack(pady=10)
 
@@ -372,7 +371,7 @@ tk.Button(admin_records_page, text="📊 View Pie Chart", font=("Segoe UI", 12, 
 tk.Button(admin_records_page, text="⬅ Back", font=("Segoe UI", 12, "bold"),
           bg="#D5DBDB", fg="black", command=lambda: (admin_records_page.pack_forget(), start_page.pack(fill="both", expand=True))).pack()
 
-# ---------------- PIE CHART PAGE ----------------
+# pie chart page
 pie_chart_page = tk.Frame(root, bg="#F4F6F8")
 pie_chart_frame = tk.Frame(pie_chart_page, bg="#F4F6F8")
 pie_chart_frame.pack(fill="both", expand=True)
@@ -380,5 +379,5 @@ pie_chart_frame.pack(fill="both", expand=True)
 tk.Button(pie_chart_page, text="⬅ Back", font=("Segoe UI", 12, "bold"),
           bg="#D5DBDB", fg="black", command=lambda: (pie_chart_page.pack_forget(), admin_records_page.pack(fill="both", expand=True))).pack(pady=10)
 
-# ---------------- RUN APP ----------------
+# run the user interface
 root.mainloop()
