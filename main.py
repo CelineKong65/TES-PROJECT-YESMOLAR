@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
+from tkinter import messagebox, scrolledtext, ttk
 from clips import Environment
 from datetime import datetime
 from collections import Counter
@@ -152,10 +152,11 @@ root.configure(bg="#F4F6F8")
 
 # functions
 def save_diagnosis_to_file(selected_symptoms, diagnosis_result):
+    symptoms_text = ", ".join(selected_symptoms) if selected_symptoms else "-"
     with open("diagnosis_records.txt", "a", encoding="utf-8") as file:
-        file.write("----------------------------------------\n")
+        file.write("-------------------------------------------------------------\n")
         file.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        file.write(f"Selected Symptoms: {', '.join(selected_symptoms)}\n")
+        file.write(f"Selected Symptoms: {symptoms_text}\n")
         file.write(f"Diagnosis Result: {diagnosis_result}\n")
 
 def diagnose():
@@ -210,10 +211,8 @@ def diagnose():
         )
         result_label.config(fg="#27AE60")
 
-    # show result on diagnosis page
     result_label.config(text=msg)
 
-    # save record
     save_diagnosis_to_file(selected_symptoms, result_code)
 
 def reset_diagnosis_page():
@@ -259,13 +258,11 @@ def show_pie_chart_page():
         labels.append(f"{mapping[k]} ({k})")
         sizes.append(v)
 
-    # Create matplotlib figure
     fig, ax = plt.subplots(figsize=(6,6))
     ax.pie(sizes, labels=labels, autopct="%1.1f%%", startangle=90)
     ax.axis("equal")
     ax.set_title("Diagnosis Distribution")
 
-    # Embed in Tkinter
     canvas = FigureCanvasTkAgg(fig, master=pie_chart_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True)
@@ -274,27 +271,49 @@ def show_pie_chart_page():
 start_page = tk.Frame(root, bg="#F4F6F8")
 start_page.pack(fill="both", expand=True)
 
-tk.Label(start_page, text="🧠 Alzheimer’s Disease Screening Expert System",
-         font=("Segoe UI", 22, "bold"), bg="#F4F6F8").pack(pady=60)
+tk.Label(start_page, 
+         text="🧠 Alzheimer’s Disease Screening Expert System",
+         font=("Segoe UI", 22, "bold"), 
+         bg="#F4F6F8"
+).pack(pady=60)
 
-tk.Button(start_page, text="▶ Start Testing", font=("Segoe UI", 16, "bold"),
-          bg="#28B463", fg="white", padx=40, pady=15,
-          command=lambda: (start_page.pack_forget(), diagnosis_page.pack(fill="both", expand=True))).pack(pady=20)
+tk.Button(start_page, 
+          text="▶ Start Testing", 
+          font=("Segoe UI", 16, "bold"),
+          bg="#28B463", 
+          fg="white", padx=40, 
+          pady=15,
+          command=lambda: (start_page.pack_forget(), diagnosis_page.pack(fill="both", expand=True))
+).pack(pady=20)
 
-tk.Button(start_page, text="Admin Login", font=("Segoe UI", 10),
-          bg="#D5DBDB", fg="black", padx=15, pady=5,
-          command=lambda: (start_page.pack_forget(), admin_login_page.pack(fill="both", expand=True))).pack(pady=10)
+tk.Button(start_page, 
+          text="Admin Login", 
+          font=("Segoe UI", 10),
+          bg="#D5DBDB", 
+          fg="black", 
+          padx=15, 
+          pady=5,
+          command=lambda: (start_page.pack_forget(), admin_login_page.pack(fill="both", expand=True))
+).pack(pady=10)
 
-tk.Label(start_page, text="Educational use only | Rule-Based Expert System | TES6313",
-         font=("Segoe UI", 10), fg="gray", bg="#F4F6F8").pack(side="bottom", pady=15)
+tk.Label(start_page, 
+         text="Educational use only | Rule-Based Expert System | TES6313",
+         font=("Segoe UI", 10), 
+         fg="gray", 
+         bg="#F4F6F8"
+).pack(side="bottom", pady=15)
 
 # diagnosis page
 diagnosis_page = tk.Frame(root, bg="#F4F6F8")
 header = tk.Frame(diagnosis_page, bg="#2E86C1", height=80)
 header.pack(fill="x")
 
-tk.Label(header, text="Select Patient Symptoms", font=("Segoe UI", 18, "bold"),
-         bg="#2E86C1", fg="white").pack(pady=20)
+tk.Label(header, 
+         text="Select Patient Symptoms", 
+         font=("Segoe UI", 18, "bold"),
+         bg="#2E86C1", 
+         fg="white"
+).pack(pady=20)
 
 card = tk.Frame(diagnosis_page, bg="white")
 card.pack(padx=40, pady=20, fill="both", expand=True)
@@ -383,18 +402,6 @@ tk.Button(button_frame,
           command=diagnose
 ).pack(side="left", padx=10)
 
-# admin login page
-admin_login_page = tk.Frame(root, bg="#F4F6F8")
-
-tk.Label(admin_login_page, text="Admin Login", font=("Segoe UI", 18, "bold"), bg="#F4F6F8").pack(pady=40)
-tk.Label(admin_login_page, text="Email:", font=("Segoe UI", 12), bg="#F4F6F8").pack(pady=5)
-admin_email_entry = tk.Entry(admin_login_page, font=("Segoe UI", 12))
-admin_email_entry.pack(pady=5)
-
-tk.Label(admin_login_page, text="Password:", font=("Segoe UI", 12), bg="#F4F6F8").pack(pady=5)
-admin_password_entry = tk.Entry(admin_login_page, font=("Segoe UI", 12), show="*")
-admin_password_entry.pack(pady=5)
-
 def admin_login_check():
     email = admin_email_entry.get().strip()
     password = admin_password_entry.get().strip()
@@ -411,41 +418,211 @@ def admin_login_check():
             messagebox.showinfo("Success", "Login successful!")
             admin_login_page.pack_forget()
             admin_records_page.pack(fill="both", expand=True)
-            load_admin_records() 
+            load_admin_records()
             return
 
     messagebox.showerror("Failed", "Invalid email or password.")
 
-button_frame_admin = tk.Frame(admin_login_page, bg="#F4F6F8")
-button_frame_admin.pack(pady=20)
+# admin login page
+admin_login_page = tk.Frame(root, bg="#F4F6F8")
 
-tk.Button(button_frame_admin, text="⬅ Back", font=("Segoe UI", 12, "bold"),
-          bg="#D5DBDB", fg="black", padx=15, pady=5,
-          command=lambda: (admin_login_page.pack_forget(), start_page.pack(fill="both", expand=True))).pack(side="left", padx=10)
+login_container = tk.Frame(admin_login_page, bg="#F4F6F8")
+login_container.pack(expand=True)
 
-tk.Button(button_frame_admin, text="Login", font=("Segoe UI", 12, "bold"),
-          bg="#28B463", fg="white", padx=15, pady=5, command=admin_login_check).pack(side="left", padx=10)
+login_card = tk.Frame(
+    login_container,
+    bg="white",
+    bd=2,
+    relief="groove",
+    padx=40,
+    pady=30
+)
+login_card.pack()
+
+tk.Label(
+    login_card,
+    text="🔐 Admin Login",
+    font=("Segoe UI", 18, "bold"),
+    bg="white",
+    fg="#2E86C1"
+).pack(pady=(0, 20))
+
+tk.Label(
+    login_card,
+    text="Authorized personnel only",
+    font=("Segoe UI", 10),
+    bg="white",
+    fg="gray"
+).pack(pady=(0, 20))
+
+tk.Label(
+    login_card,
+    text="Email Address",
+    font=("Segoe UI", 11, "bold"),
+    bg="white",
+    anchor="w"
+).pack(fill="x", pady=(10, 2))
+
+admin_email_entry = tk.Entry(
+    login_card,
+    font=("Segoe UI", 12),
+    bd=1,
+    relief="solid"
+)
+admin_email_entry.pack(fill="x", ipady=6)
+
+tk.Label(
+    login_card,
+    text="Password",
+    font=("Segoe UI", 11, "bold"),
+    bg="white",
+    anchor="w"
+).pack(fill="x", pady=(15, 2))
+
+admin_password_entry = tk.Entry(
+    login_card,
+    font=("Segoe UI", 12),
+    show="*",
+    bd=1,
+    relief="solid"
+)
+admin_password_entry.pack(fill="x", ipady=6)
+
+button_frame_admin = tk.Frame(login_card, bg="white")
+button_frame_admin.pack(pady=25, fill="x")
+
+tk.Button(
+    button_frame_admin,
+    text="⬅ Back",
+    font=("Segoe UI", 11, "bold"),
+    bg="#D5DBDB",
+    fg="black",
+    padx=15,
+    pady=8,
+    command=lambda: (
+        admin_login_page.pack_forget(),
+        start_page.pack(fill="both", expand=True)
+    )
+).pack(side="left")
+
+tk.Button(
+    button_frame_admin,
+    text="Login",
+    font=("Segoe UI", 11, "bold"),
+    bg="#28B463",
+    fg="white",
+    padx=20,
+    pady=8,
+    command=admin_login_check 
+).pack(side="right")
+
+tk.Label(
+    login_container,
+    text="© Rule-Based Alzheimer’s Expert System",
+    font=("Segoe UI", 9),
+    fg="gray",
+    bg="#F4F6F8"
+).pack(pady=15)
 
 # admin view records page
 admin_records_page = tk.Frame(root, bg="#F4F6F8")
 tk.Label(admin_records_page, text="Admin Records", font=("Segoe UI", 18, "bold")).pack(pady=10)
 
-admin_text = scrolledtext.ScrolledText(admin_records_page, width=80, height=20)
-admin_text.pack(padx=10, pady=10)
+table_frame = tk.Frame(admin_records_page, bg="#F4F6F8")
+table_frame.pack(padx=20, pady=10, fill="both", expand=True)
+
+columns = ("date", "symptoms", "diagnosis")
+
+style = ttk.Style()
+style.theme_use("default")
+style.configure("Treeview",
+                background="white",
+                foreground="black",
+                rowheight=25,
+                fieldbackground="white")
+style.map('Treeview', background=[('selected', '#AED6F1')])
+
+style.configure("Treeview",
+                background="white",
+                foreground="black",
+                rowheight=25,
+                fieldbackground="white")
+style.map('Treeview', background=[('selected', '#AED6F1')])
+
+
+admin_table = ttk.Treeview(
+    table_frame,
+    columns=columns,
+    show="headings",
+    height=15
+)
+
+admin_table.heading("date", text="Date")
+admin_table.heading("symptoms", text="Selected Symptoms")
+admin_table.heading("diagnosis", text="Diagnosis Result")
+
+admin_table.column("date", width=150, anchor="center")
+admin_table.column("symptoms", width=460, anchor="w")
+admin_table.column("diagnosis", width=160, anchor="center")
+
+admin_table.pack(side="left", fill="both", expand=True)
+
+scrollbar = ttk.Scrollbar(
+    table_frame,
+    orient="vertical",
+    command=admin_table.yview
+)
+admin_table.configure(yscrollcommand=scrollbar.set)
+scrollbar.pack(side="right", fill="y")
 
 def load_admin_records():
-    admin_text.delete("1.0", tk.END)
+    for row in admin_table.get_children():
+        admin_table.delete(row)
+
     try:
         with open("diagnosis_records.txt", "r", encoding="utf-8") as f:
-            admin_text.insert(tk.END, f.read())
+            lines = f.readlines()
     except FileNotFoundError:
-        admin_text.insert(tk.END, "No records found.")
+        return
 
-tk.Button(admin_records_page, text="📊 View Pie Chart", font=("Segoe UI", 12, "bold"),
-          bg="#5DADE2", fg="white", command=show_pie_chart_page).pack(pady=10)
+    date = ""
+    symptoms = ""
+    diagnosis = ""
 
-tk.Button(admin_records_page, text="⬅ Back", font=("Segoe UI", 12, "bold"),
-          bg="#D5DBDB", fg="black", command=lambda: (admin_records_page.pack_forget(), start_page.pack(fill="both", expand=True))).pack()
+    for line in lines:
+        line = line.strip()
+
+        if line.startswith("Date:"):
+            date = line.replace("Date:", "").strip()
+
+        elif line.startswith("Selected Symptoms:"):
+            symptoms = line.replace("Selected Symptoms:", "").strip()
+
+        elif line.startswith("Diagnosis Result:"):
+            diagnosis = line.replace("Diagnosis Result:", "").strip()
+
+            # insert one complete row
+            admin_table.insert(
+                "",
+                "end",
+                values=(date, symptoms, diagnosis)
+            )
+
+tk.Button(admin_records_page, 
+          text="📊 View Pie Chart", 
+          font=("Segoe UI", 12, "bold"),
+          bg="#5DADE2", 
+          fg="white", 
+          command=show_pie_chart_page
+).pack(pady=10)
+
+tk.Button(admin_records_page, 
+          text="⬅ Back", 
+          font=("Segoe UI", 12, "bold"),
+          bg="#D5DBDB", 
+          fg="black", 
+          command=lambda: (admin_records_page.pack_forget(), start_page.pack(fill="both", expand=True))
+).pack()
 
 # pie chart page
 pie_chart_page = tk.Frame(root, bg="#F4F6F8")
