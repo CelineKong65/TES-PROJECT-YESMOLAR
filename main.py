@@ -169,27 +169,63 @@ def diagnose():
 
     env.run()
 
-    diagnoses = [fact["result"] for fact in env.facts() if fact.template.name == "diagnosis"]
+    diagnoses = [
+        fact["result"]
+        for fact in env.facts()
+        if fact.template.name == "diagnosis"
+    ]
 
     if "P003" in diagnoses:
         result_code = "P003"
-        msg = "Diagnosis: Acute Alzheimer’s (P003)"
+        msg = (
+            "🟥 Diagnosis: Acute Alzheimer’s (P003)\n\n"
+            "⚠️ Severe stage detected.\n"
+            "Immediate medical attention is strongly recommended."
+        )
+        result_label.config(fg="#C0392B")
+
     elif "P002" in diagnoses:
         result_code = "P002"
-        msg = "Diagnosis: Moderate Alzheimer’s (P002)"
+        msg = (
+            "🟧 Diagnosis: Moderate Alzheimer’s (P002)\n\n"
+            "⚠️ Symptoms indicate moderate cognitive decline.\n"
+            "Medical consultation is advised."
+        )
+        result_label.config(fg="#D35400")
+
     elif "P001" in diagnoses:
         result_code = "P001"
-        msg = "Diagnosis: Mild Alzheimer’s (P001)"
+        msg = (
+            "🟨 Diagnosis: Mild Alzheimer’s (P001)\n\n"
+            "⚠️ Early-stage symptoms detected.\n"
+            "Monitoring and professional evaluation are recommended."
+        )
+        result_label.config(fg="#B7950B")
+
     else:
         result_code = "None"
-        msg = "No Alzheimer’s stage detected."
+        msg = (
+            "🟩 No Alzheimer’s stage detected.\n\n"
+            "Symptoms do not match the defined rules."
+        )
+        result_label.config(fg="#27AE60")
 
+    # show result on diagnosis page
+    result_label.config(text=msg)
+
+    # save record
     save_diagnosis_to_file(selected_symptoms, result_code)
 
-    messagebox.showinfo(
-        "Diagnosis Result",
-        msg + "\n\n⚠️ This is a preliminary screening.\nConsult medical professionals."
+def reset_diagnosis_page():
+    for var in symptom_vars.values():
+        var.set(False)
+
+    result_label.config(
+        text="No diagnosis yet.",
+        fg="#34495E"
     )
+
+    env.reset()
 
 def show_pie_chart_page():
     admin_records_page.pack_forget()
@@ -296,16 +332,56 @@ for code, text in symptoms.items():
     symptom_vars[code] = tk.BooleanVar()
     tk.Checkbutton(symptom_frame, text=text, variable=symptom_vars[code],
                    bg="white", font=("Segoe UI", 12), anchor="w", padx=20).pack(fill="x", pady=4)
+    
+# result display card
+result_card = tk.Frame(diagnosis_page, bg="white", bd=2, relief="groove")
+result_card.pack(padx=40, pady=(10, 5), fill="x")
+
+tk.Label(
+    result_card,
+    text="Diagnosis Result",
+    font=("Segoe UI", 14, "bold"),
+    bg="white"
+).pack(anchor="w", padx=20, pady=(10, 5))
+
+result_label = tk.Label(
+    result_card,
+    text="No diagnosis yet.",
+    font=("Segoe UI", 12),
+    bg="white",
+    fg="#34495E",
+    justify="left",
+    wraplength=700
+)
+result_label.pack(anchor="w", padx=20, pady=(0, 15))
 
 button_frame = tk.Frame(diagnosis_page, bg="#F4F6F8")
 button_frame.pack(pady=20)
 
-tk.Button(button_frame, text="⬅ Back", font=("Segoe UI", 14, "bold"),
-          bg="#D5DBDB", fg="black", padx=20, pady=10,
-          command=lambda: (diagnosis_page.pack_forget(), start_page.pack(fill="both", expand=True))).pack(side="left", padx=10)
+tk.Button(
+    button_frame,
+    text="⬅ Back",
+    font=("Segoe UI", 14, "bold"),
+    bg="#D5DBDB",
+    fg="black",
+    padx=20,
+    pady=10,
+    command=lambda: (
+        reset_diagnosis_page(),
+        diagnosis_page.pack_forget(),
+        start_page.pack(fill="both", expand=True)
+    )
+).pack(side="left", padx=10)
 
-tk.Button(button_frame, text="🔍 Run Diagnosis", font=("Segoe UI", 14, "bold"),
-          bg="#28B463", fg="white", padx=20, pady=10, command=diagnose).pack(side="left", padx=10)
+tk.Button(button_frame, 
+          text="🔍 Run Diagnosis", 
+          font=("Segoe UI", 14, "bold"),
+          bg="#28B463", 
+          fg="white", 
+          padx=20, 
+          pady=10, 
+          command=diagnose
+).pack(side="left", padx=10)
 
 # admin login page
 admin_login_page = tk.Frame(root, bg="#F4F6F8")
