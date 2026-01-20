@@ -90,7 +90,7 @@ env.build("""
 # Rule 6
 # IF G014: Repeats the same movements 
 # AND G015: Difficulty controlling emotions and behavior
-# THEN G016: Hallucinations (CF = 0.60)
+# THEN G016: Hallucinations 
 env.build("""
 (defrule rule6
    (symptom (code G014))
